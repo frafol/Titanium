@@ -12,14 +12,16 @@ import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCl
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientCreativeInventoryAction;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerBlockPlacement;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPluginMessage;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import me.jaden.titanium.check.BaseCheck;
 import me.jaden.titanium.data.PlayerData;
 import me.jaden.titanium.settings.TitaniumConfig;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /*
  @author ZugPilot (Tobi)
@@ -63,7 +65,7 @@ public class ItemCheckRunner extends BaseCheck {
             }
 
             itemStack = wrapper.getItemStack().get();
-        } else if (event.getPacketType() == PacketType.Play.Client.PLUGIN_MESSAGE) {
+        } else if (event.getPacketType() == PacketType.Play.Client.PLUGIN_MESSAGE && !Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3].contains("1_20_R")) {
             WrapperPlayClientPluginMessage wrapper = new WrapperPlayClientPluginMessage(event);
             Object buffer = null;
             try {
