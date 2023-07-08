@@ -13,7 +13,9 @@ import me.jaden.titanium.settings.TitaniumConfig;
 import me.jaden.titanium.util.Ticker;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 @Getter
 @Setter
@@ -28,6 +30,10 @@ public final class Titanium extends JavaPlugin {
     private TitaniumConfig titaniumConfig;
 
     private Ticker ticker;
+    private BukkitRunnable task;
+
+    private boolean done = false;
+    private boolean allPluginsLoaded = true;
 
     private DataManager dataManager;
     private CheckManager checkManager;
@@ -54,10 +60,7 @@ public final class Titanium extends JavaPlugin {
         this.commandManager = new PaperCommandManager(this);
         this.commandManager.registerCommand(new TitaniumCommand());
 
-        if (!getServer().spigot().getConfig().getBoolean("settings.late-bind", true)) {
-            Bukkit.getLogger().warning("[Titanium] Late bind is disabled, this can allow players" +
-                    " to join your server before the plugin loads leaving you vulnerable to crashers.");
-        }
+        checkServerStatus();
 
         //bStats
         new Metrics(this, 15258);
@@ -68,7 +71,38 @@ public final class Titanium extends JavaPlugin {
     @Override
     public void onDisable() {
         PacketEvents.getAPI().terminate();
-
         this.ticker.getTask().cancel();
+    }
+
+    private void checkServerStatus() {
+
+        if (task != null) {
+            return;
+        }
+
+        task = new BukkitRunnable() {
+            @Override
+            public void run() {
+
+                if (done) {
+                    task.cancel();
+                    return;
+                }
+
+                for (Plugin plugins : getServer().getPluginManager().getPlugins()) {
+                    if (!plugins.isEnabled()) {
+                        allPluginsLoaded = false;
+                        break;
+                    }
+                }
+
+                if (allPluginsLoaded) {
+                    done = true;
+                    task.cancel();
+                }
+            }
+        };
+
+        task.runTaskTimer(this, 20L, 40L);
     }
 }

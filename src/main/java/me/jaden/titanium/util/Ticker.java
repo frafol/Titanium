@@ -1,6 +1,5 @@
 package me.jaden.titanium.util;
 
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import lombok.Getter;
 import me.jaden.titanium.Titanium;
 import me.jaden.titanium.data.DataManager;
